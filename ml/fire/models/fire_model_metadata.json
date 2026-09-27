@@ -1,0 +1,24 @@
+{
+    "project": "AXON",
+    "model": "Random Forest",
+    "features": [
+        "FFMC",
+        "DMC",
+        "DC",
+        "ISI",
+        "temp",
+        "RH",
+        "wind",
+        "rain"
+    ],
+    "target": "recorded burned area > 0",
+    "dataset_rows": 517,
+    "metrics": {
+        "accuracy": 0.6461538461538462,
+        "precision": 0.6617647058823529,
+        "recall": 0.6617647058823529,
+        "f1": 0.6617647058823529,
+        "roc_auc": 0.6547675521821632
+    },
+    "note": "Prototype historical fire-risk model. Live AXON deployment additionally uses local smoke/gas sensing and external fire observations."
+}

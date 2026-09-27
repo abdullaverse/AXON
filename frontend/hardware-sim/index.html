@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AXON Hardware Digital Twin</title>
+<link rel="stylesheet" href="/static/hardware-sim/styles.css">
+</head>
+<body>
+<div id="app">
+  <header class="topbar">
+    <div>
+      <div class="eyebrow">AXON · HARDWARE DIGITAL TWIN</div>
+      <h1>Resilient Field Network Simulator</h1>
+      <div class="sub">Aravenu Resilience Sector · Prototype deployment · All hardware states marked SIMULATED</div>
+    </div>
+    <div class="top-status">
+      <span id="internetBadge" class="badge ok">INTERNET ONLINE</span>
+      <span id="loraBadge" class="badge ok">LoRa MESH ACTIVE</span>
+      <span id="edgeBadge" class="badge ok">EDGE AI ACTIVE</span>
+      <span id="backendBadge" class="badge muted">BACKEND UNSYNCED</span>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="left panel">
+      <div class="panel-title">SCENARIO CONTROL</div>
+      <div class="mode-row">
+        <button class="mode active" data-scn="normal">NORMAL</button>
+        <button class="mode" data-scn="rain">HEAVY RAIN</button>
+        <button class="mode" data-scn="landslide">LANDSLIDE</button>
+        <button class="mode" data-scn="flood">FLOOD</button>
+        <button class="mode" data-scn="fire">FOREST FIRE</button>
+        <button class="mode" data-scn="pollution">POLLUTION</button>
+        <button class="mode danger" data-scn="cascade">CASCADE</button>
+      </div>
+
+      <div class="run-row">
+        <button id="startBtn" class="primary">▶ START</button>
+        <button id="pauseBtn">Ⅱ PAUSE</button>
+        <button id="resetBtn">↺ RESET</button>
+      </div>
+
+      <label class="switch-row">
+        <input id="networkFail" type="checkbox">
+        <span>Simulate Internet / cellular failure</span>
+      </label>
+
+      <label class="switch-row">
+        <input id="backendSync" type="checkbox">
+        <span>Sync real AXON backend ML</span>
+      </label>
+
+      <div class="timeline">
+        <div class="kicker">SIMULATION CLOCK</div>
+        <div id="clock" class="clock">00:00</div>
+        <div id="stage" class="stage">SYSTEM NORMAL</div>
+        <div class="progress"><div id="progressBar"></div></div>
+      </div>
+
+      <div class="panel-title space">MANUAL SENSOR INJECTION</div>
+      <div class="sliders">
+        <label>Rainfall <b id="rainOut">5</b> mm
+          <input id="rain" type="range" min="0" max="120" value="5">
+        </label>
+        <label>Soil moisture <b id="soilOut">30</b> %
+          <input id="soil" type="range" min="0" max="100" value="30">
+        </label>
+        <label>Vibration <b id="vibOut">0.04</b>
+          <input id="vib" type="range" min="0" max="100" value="4">
+        </label>
+        <label>Water level <b id="waterOut">1.20</b> m
+          <input id="water" type="range" min="0" max="400" value="120">
+        </label>
+        <label>Temperature <b id="tempOut">28</b> °C
+          <input id="temp" type="range" min="15" max="60" value="28">
+        </label>
+        <label>Humidity <b id="humOut">65</b> %
+          <input id="hum" type="range" min="0" max="100" value="65">
+        </label>
+        <label>Smoke <b id="smokeOut">5</b> %
+          <input id="smoke" type="range" min="0" max="100" value="5">
+        </label>
+        <label>PM2.5 <b id="pmOut">25</b> µg/m³
+          <input id="pm" type="range" min="0" max="400" value="25">
+        </label>
+      </div>
+    </section>
+
+    <section class="center">
+      <div class="network panel">
+        <div class="panel-title">FIELD NETWORK TOPOLOGY</div>
+        <svg id="networkSvg" viewBox="0 0 900 510" role="img" aria-label="AXON field network topology">
+          <defs>
+            <filter id="softGlow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="#7f8ea3"/></marker>
+          </defs>
+          <g id="links" class="links">
+            <path id="linkH" d="M170 105 C310 90 360 170 450 245" />
+            <path id="linkR" d="M170 385 C310 400 360 320 450 245" />
+            <path id="linkF" d="M730 105 C590 90 540 170 450 245" />
+            <path id="linkA" d="M730 385 C590 400 540 320 450 245" />
+            <path id="linkC" d="M450 245 C450 330 450 390 450 455" />
+          </g>
+
+          <g class="node" data-node="H01" transform="translate(90,45)">
+            <rect width="160" height="120" rx="12"/><text x="16" y="28" class="id">H01</text>
+            <text x="16" y="50" class="name">LANDSLIDE NODE</text><text x="16" y="75" id="hMini">Rain 5 · Soil 30%</text>
+            <text x="16" y="98" class="small">ESP32 · LoRa · SENSORS</text>
+          </g>
+          <g class="node" data-node="R01" transform="translate(90,325)">
+            <rect width="160" height="120" rx="12"/><text x="16" y="28" class="id">R01</text>
+            <text x="16" y="50" class="name">FLOOD NODE</text><text x="16" y="75" id="rMini">Water 1.20 m</text>
+            <text x="16" y="98" class="small">ESP32 · LoRa · LEVEL</text>
+          </g>
+          <g class="node" data-node="F01" transform="translate(650,45)">
+            <rect width="160" height="120" rx="12"/><text x="16" y="28" class="id">F01</text>
+            <text x="16" y="50" class="name">FOREST NODE</text><text x="16" y="75" id="fMini">Temp 28°C · Smoke 5%</text>
+            <text x="16" y="98" class="small">ESP32 · LoRa · GAS</text>
+          </g>
+          <g class="node" data-node="A01" transform="translate(650,325)">
+            <rect width="160" height="120" rx="12"/><text x="16" y="28" class="id">A01</text>
+            <text x="16" y="50" class="name">AIR NODE</text><text x="16" y="75" id="aMini">PM2.5 25</text>
+            <text x="16" y="98" class="small">ESP32 · LoRa · PM</text>
+          </g>
+          <g class="node relay" data-node="T01" transform="translate(370,185)">
+            <rect width="160" height="120" rx="12"/><text x="16" y="28" class="id">T01</text>
+            <text x="16" y="50" class="name">TOWER / RELAY</text><text x="16" y="75">LoRa packet router</text>
+            <text x="16" y="98" class="small">SOLAR · BATTERY · ANTENNA</text>
+          </g>
+          <g class="node community" data-node="C01" transform="translate(350,430)">
+            <rect width="200" height="68" rx="12"/><text x="16" y="28" class="id">C01 COMMUNITY UNIT</text>
+            <text x="16" y="50" id="cMini">SIREN READY · DISPLAY READY</text>
+          </g>
+
+          <circle id="packet" r="7" cx="-50" cy="-50"/>
+        </svg>
+
+        <div class="legend">
+          <span><i class="dot ok"></i> Node active</span>
+          <span><i class="line"></i> LoRa simulated link</span>
+          <span><i class="dot alert"></i> Warning / actuation</span>
+        </div>
+      </div>
+
+      <div class="circuit panel">
+        <div class="panel-title">SELECTED NODE HARDWARE — <span id="selectedNode">H01</span></div>
+        <div class="hardware-detail-grid">
+          <div>
+            <div class="detail-subtitle">COMPLETE COMPONENTS</div>
+            <div id="componentList" class="component-list"></div>
+          </div>
+          <div>
+            <div class="detail-subtitle">PIN / BUS CONNECTIONS</div>
+            <div id="pinTable" class="pin-table"></div>
+          </div>
+        </div>
+        <div class="detail-subtitle space">CIRCUIT / SIGNAL FLOW</div>
+        <div id="circuitCanvas" class="circuit-canvas"></div>
+        <div class="detail-subtitle space">POWER + COMMUNICATION ARCHITECTURE</div>
+        <div id="circuitDiagram" class="circuit-grid"></div>
+      </div>
+    </section>
+
+    <aside class="right panel">
+      <div class="panel-title">DECISION INTELLIGENCE</div>
+      <div class="risk-card">
+        <div class="risk-head"><span>LANDSLIDE</span><b id="landRisk">—</b></div>
+        <div class="riskbar"><div id="landBar"></div></div>
+        <div id="landProv" class="prov">AWAITING MODEL</div>
+      </div>
+      <div class="risk-card">
+        <div class="risk-head"><span>FLOOD</span><b id="floodRisk">—</b></div>
+        <div class="riskbar"><div id="floodBar"></div></div>
+        <div class="prov">SIMULATED</div>
+      </div>
+      <div class="risk-card">
+        <div class="risk-head"><span>FOREST FIRE</span><b id="fireRisk">—</b></div>
+        <div class="riskbar"><div id="fireBar"></div></div>
+        <div class="prov">SIMULATED</div>
+      </div>
+      <div class="risk-card">
+        <div class="risk-head"><span>POLLUTION</span><b id="pollRisk">—</b></div>
+        <div class="riskbar"><div id="pollBar"></div></div>
+        <div class="prov">SIMULATED</div>
+      </div>
+
+      <div class="panel-title space">C01 COMMUNITY RESPONSE</div>
+      <div class="community-card">
+        <div class="kv"><span>LoRa receiver</span><b class="oktxt">ACTIVE</b></div>
+        <div class="kv"><span>Wi-Fi local AP</span><b class="oktxt">ACTIVE</b></div>
+        <div class="kv"><span>Siren</span><b id="sirenState">READY</b></div>
+        <div class="kv"><span>Direction LEDs</span><b id="ledState">READY</b></div>
+        <div class="kv"><span>Battery</span><b>91%</b></div>
+        <div class="display">
+          <div class="kicker">EMERGENCY DISPLAY</div>
+          <div id="displayText">SYSTEM NORMAL</div>
+        </div>
+      </div>
+
+      <div class="panel-title space">EVENT STREAM</div>
+      <div id="eventLog" class="event-log"></div>
+    </aside>
+  </main>
+</div>
+
+<script type="module" src="/static/hardware-sim/app.js"></script>
+</body>
+</html>

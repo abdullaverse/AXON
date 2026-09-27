@@ -1,0 +1,25 @@
+AXON SAFE ROUTE BUTTON FIX
+
+Replace these files in your frontend:
+- index.html
+- styles.css
+- js/judge.js
+- js/map.js
+- js/routing.js
+
+Do NOT delete frontend/hardware-sim.
+
+Restart:
+uvicorn backend.main:app --reload
+
+Then hard refresh:
+Ctrl + F5
+
+Open:
+http://127.0.0.1:8000/dashboard
+
+You will see:
+EXPAND MAP   |   🧭 FIND SAFEST ROUTE
+
+Click FIND SAFEST ROUTE after a hazard is active.
+It will calculate/select the route, zoom the map to it, and open Routing Engine.

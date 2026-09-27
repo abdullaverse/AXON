@@ -1,0 +1,31 @@
+AXON FIXED PROFESSIONAL PACKAGE
+
+1) BACK UP your current frontend folder.
+2) Replace your AXON/frontend folder contents with the contents of this package root EXCEPT backend_additions and INSTALL.txt.
+   Expected:
+     frontend/index.html
+     frontend/styles.css
+     frontend/js/*.js
+3) Copy backend_additions/google_hazard_router.py to:
+     AXON/backend/google_hazard_router.py
+4) Apply the two-line main.py patch described in backend_additions/MAIN_PY_PATCH.txt
+5) Ensure .env still contains GOOGLE_MAPS_API_KEY=...
+6) From AXON root with .venv active:
+     pip install requests python-dotenv
+7) Restart:
+     uvicorn backend.main:app --reload
+8) Test first:
+     http://127.0.0.1:8000/docs
+   You should see POST /routing/google-safe-route and POST /fusion.
+9) Open:
+     http://127.0.0.1:8000/dashboard
+   Then Ctrl+F5.
+
+DIGITAL TWIN truth labels:
+- Landslide: real MODEL via /fusion when endpoint succeeds.
+- Flood: MODEL via /fusion using meter-based engineered history; still PROTOTYPE because its MAE is worse than persistence baseline.
+- Fire: SIMULATED — MODEL ADAPTER REQUIRED (FFMC/DMC/DC/ISI unavailable in Digital Twin).
+- Pollution: SIMULATED — MODEL ADAPTER REQUIRED (full gas/weather history unavailable).
+- LoRa/C01 physical actuation: SIMULATED until hardware is connected.
+- Google Routes: LIVE when backend endpoint succeeds.
+- Offline routing: LOCAL/PROTOTYPE graph.

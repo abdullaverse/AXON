@@ -1,0 +1,33 @@
+{
+    "project": "AXON",
+    "model": "XGBoost PM2.5 Forecaster",
+    "forecast_horizon": "3 hours",
+    "features": [
+        "PM2.5",
+        "PM10",
+        "SO2",
+        "NO2",
+        "CO",
+        "O3",
+        "TEMP",
+        "PRES",
+        "DEWP",
+        "RAIN",
+        "WSPM",
+        "pm25_1h",
+        "pm25_3h",
+        "pm25_6h",
+        "pm25_24h",
+        "pm25_change_1h",
+        "hour",
+        "month"
+    ],
+    "training_rows": 315511,
+    "test_rows": 78878,
+    "metrics": {
+        "mae": 20.029324555864918,
+        "rmse": 36.16035392107014,
+        "r2": 0.8163957906336451,
+        "baseline_mae": 21.524899211440452
+    }
+}

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AXON — Multi-Hazard Environmental Intelligence Network</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+
+<div id="axon-shell">
+
+  <!-- ============ TOP HEADER ============ -->
+  <header id="axon-header">
+    <div class="hdr-left">
+      <div class="axon-mark">
+        <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true">
+          <polygon points="12,2 22,20 2,20" fill="none" stroke="currentColor" stroke-width="1.6"/>
+          <circle cx="12" cy="14.5" r="1.6" fill="currentColor"/>
+          <line x1="12" y1="6.5" x2="12" y2="11.6" stroke="currentColor" stroke-width="1.6"/>
+        </svg>
+      </div>
+      <div class="hdr-title-block">
+        <div class="hdr-title">AXON</div>
+        <div class="hdr-subtitle">Multi-Hazard Environmental Intelligence Network</div>
+      </div>
+    </div>
+
+    <div class="hdr-center">
+      <div class="op-status-label" id="opStatusLabel">ONLINE INTELLIGENCE</div>
+      <div class="op-status-sub" id="opStatusSub">ARAVENU RESILIENCE SECTOR · Kotagiri · Nilgiris</div>
+      <div class="mode-switch" id="modeSwitch">
+        <button type="button" class="mode-btn active" data-mode="digital">DIGITAL TWIN</button>
+        <button type="button" class="mode-btn" data-mode="live">LIVE FIELD NETWORK</button>
+      </div>
+    </div>
+
+    <div class="hdr-right" id="hdrIndicators">
+      <div class="ind" data-key="internet"><span class="dot ok"></span>INTERNET</div>
+      <div class="ind" data-key="lora"><span class="dot idle"></span>LoRa MESH</div>
+      <div class="ind" data-key="edge"><span class="dot ok"></span>EDGE AI</div>
+      <div class="ind" data-key="gps"><span class="dot ok"></span>GPS</div>
+      <div class="ind" data-key="sat"><span class="dot ok"></span>SATELLITE</div>
+      <div class="ind" data-key="db"><span class="dot ok"></span>DATABASE</div>
+    </div>
+  </header>
+
+  <!-- ============ MAIN BODY ============ -->
+  <div id="axon-body">
+
+    <!-- MAP -->
+    <div id="map-wrap">
+      <div id="map"></div>
+
+      <!-- layer control, floating top-left of map -->
+      <div class="map-overlay layer-panel" id="layerPanel">
+        <div class="panel-heading">DATA LAYERS</div>
+        <label class="layer-row"><input type="checkbox" data-layer="sensors" checked><span>Ground Sensors</span></label>
+        <label class="layer-row"><input type="checkbox" data-layer="gpm"><span>NASA GPM Rainfall <em>sim</em></span></label>
+        <label class="layer-row"><input type="checkbox" data-layer="firms"><span>NASA FIRMS Fire <em>sim</em></span></label>
+        <label class="layer-row"><input type="checkbox" data-layer="hazards" checked><span>Hazard Zones</span></label>
+        <label class="layer-row"><input type="checkbox" data-layer="routes" checked><span>Evacuation Routes</span></label>
+        <label class="layer-row"><input type="checkbox" data-layer="safepoints" checked><span>Safe Points</span></label>
+        <label class="layer-row"><input type="checkbox" data-layer="traffic"><span>Traffic <em>demo</em></span></label>
+      </div>
+
+      <!-- routing source badge, floating top-right of map -->
+      <div class="map-overlay routing-badge" id="routingBadge">
+        <div class="panel-heading">ROUTING SOURCE</div>
+        <div class="routing-value" id="routingSourceValue">GOOGLE ROUTES · DEMO MODE</div>
+        <div class="routing-comm" id="routingCommValue">COMMS: CELLULAR / IP</div>
+      </div>
+
+      <!-- scale / coord readout bottom-left -->
+      <div class="map-overlay geo-readout" id="geoReadout">11.4090°N · 76.8740°E &nbsp;|&nbsp; ARAVENU DEMO DEPLOYMENT</div>
+
+      <button class="map-focus-btn" id="mapFocusBtn" type="button">EXPAND MAP</button>
+      <div class="sim-hud" id="simHud">
+        <div class="sim-stage" id="simStage">LIVE SECTOR</div>
+        <div class="sim-track"><div class="sim-progress" id="simProgress"></div></div>
+        <div class="sim-text" id="simText">Monitoring</div>
+      </div>
+    </div>
+
+    <!-- RIGHT INTELLIGENCE PANEL -->
+    <aside id="intel-panel">
+
+      <section class="panel-block" id="incidentBlock">
+        <div class="block-heading">CURRENT INCIDENT</div>
+        <div class="incident-name" id="incidentName">NORMAL OPERATIONS</div>
+        <div class="incident-desc" id="incidentDesc">All monitored parameters within baseline range.</div>
+      </section>
+
+      <section class="panel-block">
+        <div class="block-heading">HAZARD PROBABILITY</div>
+        <div class="risk-row">
+          <div class="risk-label">LANDSLIDE</div>
+          <div class="risk-track"><div class="risk-fill risk-landslide" id="fillLandslide" style="width:8%"></div></div>
+          <div class="risk-pct" id="pctLandslide">8%</div>
+        </div>
+        <div class="risk-row">
+          <div class="risk-label">FLOOD</div>
+          <div class="risk-track"><div class="risk-fill risk-flood" id="fillFlood" style="width:11%"></div></div>
+          <div class="risk-pct" id="pctFlood">11%</div>
+        </div>
+        <div class="risk-row">
+          <div class="risk-label">FOREST FIRE</div>
+          <div class="risk-track"><div class="risk-fill risk-fire" id="fillFire" style="width:4%"></div></div>
+          <div class="risk-pct" id="pctFire">4%</div>
+        </div>
+        <div class="risk-row">
+          <div class="risk-label">POLLUTION</div>
+          <div class="risk-track"><div class="risk-fill risk-pollution" id="fillPollution" style="width:15%"></div></div>
+          <div class="risk-pct" id="pctPollution">15%</div>
+        </div>
+      </section>
+
+      <section class="panel-block" id="evacBlock">
+        <div class="block-heading">EVACUATION DECISION</div>
+        <div class="evac-grid">
+          <div class="evac-item">
+            <div class="evac-k">SAFE DIRECTION</div>
+            <div class="evac-v arrow" id="evacDirection">— HOLD</div>
+          </div>
+          <div class="evac-item">
+            <div class="evac-k">DESTINATION</div>
+            <div class="evac-v" id="evacDestination">SP-01</div>
+          </div>
+          <div class="evac-item">
+            <div class="evac-k">DISTANCE</div>
+            <div class="evac-v" id="evacDistance">1.1 km</div>
+          </div>
+          <div class="evac-item">
+            <div class="evac-k">ETA</div>
+            <div class="evac-v" id="evacETA">4 min</div>
+          </div>
+          <div class="evac-item">
+            <div class="evac-k">EMERGENCY WINDOW</div>
+            <div class="evac-v" id="evacWindow">— min</div>
+          </div>
+          <div class="evac-item">
+            <div class="evac-k">ROUTE STATUS</div>
+            <div class="evac-v status-safe" id="evacRouteStatus">SAFE</div>
+          </div>
+        </div>
+        <div class="evac-reason">
+          <div class="evac-k">REASON</div>
+          <div id="evacReason">All corridors nominal. No evacuation currently required.</div>
+        </div>
+      </section>
+
+      <section class="panel-block community-block" id="communityBlock">
+        <div class="block-heading">C01 COMMUNITY SAFETY UNIT</div>
+        <div class="community-grid">
+          <div><span>LoRa</span><b id="cLora">ACTIVE</b></div>
+          <div><span>Wi-Fi AP</span><b id="cWifi">ACTIVE</b></div>
+          <div><span>Siren</span><b id="cSiren">READY</b></div>
+          <div><span>Display</span><b id="cDisplay">STANDBY</b></div>
+        </div>
+        <div class="community-command">
+          <div class="evac-k">CURRENT ORDER</div>
+          <div class="community-order" id="communityOrder">MONITOR / HOLD</div>
+          <div class="community-packet" id="communityPacket">Waiting for route packet…</div>
+        </div>
+      </section>
+
+      <section class="panel-block" id="logBlock">
+        <div class="block-heading">LIVE EVENT STREAM</div>
+        <div id="eventLog" class="event-log"></div>
+      </section>
+
+    </aside>
+  </div>
+
+  <!-- ============ BOTTOM SCENARIO STRIP ============ -->
+  <footer id="scenario-strip">
+    <div class="strip-label">DIGITAL TWIN TRIGGERS</div>
+    <div class="strip-buttons" id="scenarioButtons">
+      <button class="scn-btn active" data-scn="normal">NORMAL</button>
+      <button class="scn-btn" data-scn="rain">HEAVY RAIN</button>
+      <button class="scn-btn" data-scn="landslide">LANDSLIDE</button>
+      <button class="scn-btn" data-scn="flood">FLOOD</button>
+      <button class="scn-btn" data-scn="fire">FOREST FIRE</button>
+      <button class="scn-btn" data-scn="pollution">POLLUTION</button>
+      <button class="scn-btn warn" data-scn="cascade">CASCADE DISASTER</button>
+      <button class="scn-btn crit" data-scn="network">NETWORK FAILURE</button>
+    </div>
+    <div class="strip-status" id="stripStatus">SYSTEM NOMINAL</div>
+  </footer>
+
+</div>
+
+<!-- node / safe-point detail popup template lives in app.js -->
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="/static/app.js"></script>
+</body>
+</html>

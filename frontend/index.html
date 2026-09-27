@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AXON — Command Center</title>
+<link rel="stylesheet" href="/static/styles.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="command-shell">
+
+  <!-- ============ HEADER ============ -->
+  <header class="command-header">
+    <div class="command-header__brand">
+      <span class="brand-mark">AXON</span>
+      <span class="brand-subtitle">Resilient AI-Powered Multi-Hazard Environmental Intelligence Network</span>
+    </div>
+    <div class="command-header__sector">ARAVENU RESILIENCE SECTOR <i>· Kotagiri, Nilgiris, TN, India — Prototype Demo Deployment</i></div>
+    <div class="command-header__status" id="header-status-strip"></div>
+    <div class="command-header__actions">
+      <button class="btn-danger" id="btn-network-failure">NETWORK FAILURE</button>
+      <button class="btn-ghost" id="btn-fullscreen">FULLSCREEN</button>
+    </div>
+  </header>
+
+  <div id="live-data-banner" class="live-data-banner" hidden>LIVE DATA UNAVAILABLE</div>
+
+  <!-- Judge-facing mission strip: makes the value proposition obvious without exposing backend details -->
+  <section class="mission-strip" aria-label="AXON response chain">
+    <div class="mission-strip__identity">
+      <span class="eyebrow">OPERATIONAL OBJECTIVE</span>
+      <b id="mission-headline">Detect early. Avoid exposed corridors. Guide the community.</b>
+    </div>
+    <div class="response-chain" id="response-chain" aria-label="Response chain">
+      <span data-step="detect">01 DETECT</span>
+      <i>→</i>
+      <span data-step="predict">02 PREDICT</span>
+      <i>→</i>
+      <span data-step="avoid">03 AVOID</span>
+      <i>→</i>
+      <span data-step="route">04 ROUTE</span>
+      <i>→</i>
+      <span data-step="alert">05 ALERT</span>
+    </div>
+    <div class="judge-actions">
+      <button class="btn-demo" id="btn-judge-demo">START JUDGE DEMO</button>
+      <button class="btn-historical" id="btn-historical-replay">REPLAY NILGIRIS 2009</button>
+      <button class="btn-safe-route" id="btn-find-safe-route">FIND SAFEST ROUTE</button>
+      <span class="judge-hint">Historical replay uses verified impact facts + AXON counterfactual response</span>
+    </div>
+  </section>
+
+  <!-- ============ MAIN GRID ============ -->
+  <div class="command-grid">
+
+    <!-- FIELD NETWORK PANEL -->
+    <aside class="panel panel--field">
+      <div class="panel__header">FIELD NETWORK <button class="link-btn" data-drawer-target="drawer-field">EXPAND</button></div>
+      <div class="field-node-list">
+        <div class="field-node"><span class="dot dot--landslide"></span> H01 <i>Landslide</i></div>
+        <div class="field-node"><span class="dot dot--flood"></span> R01 <i>Flood</i></div>
+        <div class="field-node"><span class="dot dot--fire"></span> F01 <i>Forest Fire</i></div>
+        <div class="field-node"><span class="dot dot--pollution"></span> A01 <i>Pollution</i></div>
+        <div class="field-node"><span class="dot dot--relay"></span> T01 <i>LoRa Relay</i></div>
+        <div class="field-node"><span class="dot dot--community"></span> C01 <i>Community Unit</i></div>
+      </div>
+
+      <div class="panel__header panel__header--secondary">MODE</div>
+      <div class="mode-toggle">
+        <button class="mode-btn mode-btn--active" id="mode-live">LIVE FIELD</button>
+        <button class="mode-btn" id="mode-twin">DIGITAL TWIN</button>
+      </div>
+
+      <div class="panel__header panel__header--secondary">INSPECTORS</div>
+      <div class="inspector-launchers">
+        <button data-drawer-target="drawer-ai">AI ENGINE</button>
+        <button data-drawer-target="drawer-routing" id="btn-drawer-routing">ROUTING ENGINE</button>
+        <button data-drawer-target="drawer-datasources">DATA SOURCES</button>
+        <button data-drawer-target="drawer-log">SYSTEM LOG</button>
+      </div>
+    </aside>
+
+    <!-- MAP -->
+    <main class="panel panel--map">
+      <div class="map-toolbar">
+        <div class="map-toolbar__actions">
+          <button class="btn-ghost" id="btn-expand-map">EXPAND MAP</button>
+          <button class="btn-safe-route btn-safe-route--map" id="btn-find-safe-route-map">
+            🧭 FIND SAFEST ROUTE
+          </button>
+        </div>
+        <div class="map-legend">
+          <span><i class="legend-swatch legend-swatch--safe"></i>Safe Route</span>
+          <span><i class="legend-swatch legend-swatch--rejected"></i>Rejected Route</span>
+          <span><i class="legend-swatch legend-swatch--hazard"></i>Hazard Zone</span>
+          <span><i class="legend-swatch legend-swatch--safept"></i>Safe Point</span>
+        </div>
+      </div>
+      <div id="map"></div>
+
+      <div class="map-decision-overlay" id="map-decision-overlay">
+        <div><span>ACTIVE PHASE</span><b id="overlay-phase">MONITORING</b></div>
+        <div><span>ROUTING</span><b id="overlay-routing">GOOGLE / ONLINE</b></div>
+        <div><span>COMMUNITY</span><b id="overlay-community">C01 READY</b></div>
+      </div>
+
+      <div class="resilient-banner" id="resilient-banner" hidden>
+        <strong>OFFLINE EMERGENCY MODE</strong>
+        <span>Cloud-dependent services unavailable · Edge AI + LoRa + local routing continue</span>
+      </div>
+
+      <!-- Digital Twin control panel (overlays map when TWIN mode active) -->
+      <div class="twin-panel" id="twin-control-panel">
+        <div class="twin-panel__header">
+          DIGITAL TWIN · DISASTER TRIGGER
+          <span id="twin-selected-scenario" data-scenario-id="CASCADE_DISASTER">Cascade Disaster</span>
+        </div>
+        <div id="scenario-list" class="scenario-list"></div>
+        <div class="twin-panel__row">
+          <span id="twin-clock" class="mono">00:00 / 00:00</span>
+          <span id="twin-stage" class="stage-label">SYSTEM NORMAL</span>
+        </div>
+        <div class="twin-progress"><div class="twin-progress__fill" id="twin-progress-fill"></div></div>
+        <div class="twin-panel__row">
+          <div class="speed-group"><span class="backend-twin-badge">BACKEND TWIN · 1×</span></div>
+          <div class="control-group">
+            <button class="btn-primary" id="btn-sim-start">START</button>
+            <button class="btn-ghost" id="btn-sim-pause">PAUSE</button>
+            <button class="btn-ghost" id="btn-sim-reset">RESET</button>
+          </div>
+        </div>
+        <div id="sensor-monitor" class="sensor-monitor"></div>
+      </div>
+    </main>
+
+    <!-- THREAT INTELLIGENCE RAIL -->
+    <aside class="panel panel--intel">
+      <div class="panel__header">THREAT INTELLIGENCE</div>
+      <div id="threat-intelligence-body"></div>
+      <div class="dominant-hazard">
+        <span>DOMINANT HAZARD</span>
+        <b id="dominant-hazard-label">NONE — NORMAL</b>
+      </div>
+
+      <div class="panel__header panel__header--secondary">DECISION INTELLIGENCE</div>
+      <div class="decision-card" id="decision-card">
+        <div class="decision-risk">
+          <span>OVERALL RESPONSE STATE</span>
+          <strong id="decision-state">MONITOR</strong>
+        </div>
+        <div class="decision-line"><span>NOW</span><b id="decision-now">Environmental baseline stable</b></div>
+        <div class="decision-line"><span>NEXT</span><b id="decision-next">Continue precursor monitoring</b></div>
+        <div class="decision-line"><span>WHY</span><b id="decision-why">No critical model trigger</b></div>
+        <div class="decision-action"><span>ACTION</span><b id="decision-action">Standby · no evacuation required</b></div>
+      </div>
+
+      <div class="panel__header panel__header--secondary">EVACUATION</div>
+      <div id="evacuation-summary" class="evacuation-summary"><div class="evac-state">STANDBY</div><div class="evac-note">No active evacuation. AXON is monitoring precursors.</div></div>
+
+      <div class="panel__header panel__header--secondary">C01 · COMMUNITY SAFETY UNIT</div>
+      <div id="c01-card-body" class="c01-card"></div>
+    </aside>
+
+    <!-- EVENT TIMELINE -->
+    <section class="panel panel--timeline">
+      <div class="panel__header">LIVE EVENT TIMELINE</div>
+      <div id="event-timeline" class="event-timeline"></div>
+    </section>
+
+  </div>
+</div>
+
+<!-- ============ DRAWERS ============ -->
+<div id="drawer-backdrop" class="drawer-backdrop"></div>
+
+<div id="drawer-ai" class="drawer">
+  <div class="drawer__header">AXON MULTI-MODEL INTELLIGENCE <button data-drawer-close>✕</button></div>
+  <div id="ai-engine-body" class="drawer__body"></div>
+</div>
+
+<div id="drawer-routing" class="drawer">
+  <div class="drawer__header">ROUTING ENGINE <button data-drawer-close>✕</button></div>
+  <div id="routing-body" class="drawer__body"></div>
+</div>
+
+<div id="drawer-datasources" class="drawer">
+  <div class="drawer__header">DATA SOURCES <button data-drawer-close>✕</button></div>
+  <div id="data-sources-body" class="drawer__body"></div>
+</div>
+
+<div id="drawer-field" class="drawer">
+  <div class="drawer__header">FIELD NETWORK — NODE DETAIL <button data-drawer-close>✕</button></div>
+  <div class="drawer__body">
+    <p class="inspector-meta">Click any node marker on the map for live telemetry, LoRa status, battery, and data-source provenance.</p>
+  </div>
+</div>
+
+
+<div id="drawer-historical" class="drawer drawer--wide">
+  <div class="drawer__header">HISTORICAL EVENT REPLAY — NILGIRIS, NOVEMBER 2009 <button data-drawer-close>✕</button></div>
+  <div class="drawer__body">
+    <div class="historical-hero">
+      <div>
+        <span class="eyebrow">OBSERVED HISTORICAL EVENT</span>
+        <h2>Nilgiris rainfall-triggered landslide disaster · 7–10 Nov 2009</h2>
+        <p>This replay uses the historical impact as context, while AXON runs a prototype counterfactual response over the current Digital Twin. It is not a claim that AXON was present in 2009.</p>
+      </div>
+      <div class="historical-badge">HISTORICAL REPLAY</div>
+    </div>
+    <div class="historical-metrics">
+      <div><span>RECORDED FATALITIES</span><b>44</b><i>Official Tamil Nadu audit record</i></div>
+      <div><span>HUTS DAMAGED</span><b>3,715</b><i>Recorded event impact</i></div>
+      <div><span>LANDSLIDES ON STATE HIGHWAYS</span><b>899</b><i>Recorded event impact</i></div>
+      <div><span>AXON CLAIM</span><b>EARLIER WARNING</b><i>Not “44 lives saved”</i></div>
+    </div>
+    <div class="counterfactual-grid">
+      <div class="counterfactual-block">
+        <h3>WHAT HAPPENED</h3>
+        <p>Heavy rain triggered widespread landslides, damaged roads and homes, and caused major loss of life across the Nilgiris.</p>
+      </div>
+      <div class="counterfactual-block">
+        <h3>IF AXON HAD BEEN DEPLOYED</h3>
+        <p>Ground precursors + rainfall context → local model risk → unsafe-corridor rejection → safe-route guidance → LoRa community warning, including during connectivity failure.</p>
+      </div>
+      <div class="counterfactual-block counterfactual-block--important">
+        <h3>IMPACT ESTIMATE</h3>
+        <p><b>Historical fatalities: 44.</b> These are people who were exposed in the real event, not a scientifically proven number AXON would have saved. The defensible claim is that AXON could have provided earlier warning and reduced exposure for at-risk communities.</p>
+      </div>
+    </div>
+    <div class="historical-actions">
+      <button class="btn-primary" id="btn-run-historical-now">RUN AXON COUNTERFACTUAL</button>
+      <button class="btn-safe-route" id="btn-historical-safe-route">CALCULATE SAFEST ROUTE</button>
+    </div>
+  </div>
+</div>
+
+<div id="drawer-log" class="drawer drawer--wide">
+  <div class="drawer__header">SYSTEM LOG <button data-drawer-close>✕</button></div>
+  <div class="drawer__body">
+    <div id="event-timeline-full" class="event-timeline"></div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script type="module" src="/static/js/app.js"></script>
+</body>
+</html>

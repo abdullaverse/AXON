@@ -1,0 +1,12 @@
+{
+    "model": "XGBoost",
+    "features": [
+        "rain_1day",
+        "rain_3day",
+        "rain_7day",
+        "elevation_m",
+        "slope_deg"
+    ],
+    "training_rows": 136,
+    "warning": "Prototype model trained using catalog-screened temporal controls; requires larger independent validation before operational deployment."
+}

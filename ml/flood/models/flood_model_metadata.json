@@ -1,0 +1,30 @@
+{
+    "project": "AXON",
+    "model": "XGBoost River Water Level Forecaster",
+    "target": "river water level 3 hours ahead",
+    "forecast_horizon_hours": 3,
+    "features": [
+        "level_now",
+        "level_1h",
+        "level_3h",
+        "level_6h",
+        "level_12h",
+        "level_24h",
+        "rise_1h",
+        "rise_3h",
+        "rise_6h",
+        "rolling_mean_6h",
+        "rolling_std_6h",
+        "hour",
+        "month"
+    ],
+    "training_rows": 63979,
+    "test_rows": 15995,
+    "metrics": {
+        "mae_m": 0.6499542194619407,
+        "rmse_m": 3.821169333405117,
+        "r2": 0.9883304101879299,
+        "baseline_mae_m": 0.48428566262163164
+    },
+    "warning": "Prototype forecasting model. Operational flood warning requires station-specific warning/danger levels, rainfall and independent validation."
+}

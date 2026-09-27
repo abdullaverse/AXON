@@ -1,0 +1,9 @@
+ADD THIS IMPORT near the top of backend/main.py:
+
+from backend.google_hazard_router import router as google_hazard_router
+
+THEN, after app = FastAPI(...) and your middleware/static setup, add:
+
+app.include_router(google_hazard_router)
+
+Nothing else in backend/main.py needs to be replaced.
